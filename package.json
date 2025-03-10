@@ -24,6 +24,7 @@
   },
   "devDependencies": {
     "@tsconfig/node20": "^20.1.4",
+    "@types/estree": "^1.0.6",
     "@types/localforage": "^0.0.34",
     "@types/lodash": "^4.17.16",
     "@types/node": "^20.16.11",

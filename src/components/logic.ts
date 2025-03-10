@@ -32,6 +32,7 @@ export class MidiNote {
   end: number = -1
   pitch: number = 0
   velocity: number = 0
+  channel: number = 0
 }
 
 /** 文件（静态/用户上传） */
@@ -108,6 +109,7 @@ export class MidiFileItem extends FileItem {
   }
   /** midi转音符 */
   midi2tracks(midi: Midi) {
+    console.log(midi)
     const tracks = midi.track.map(track => {
       const midiTrack = new MidiTrack()
       midiTrack.setTimeDivision(midi.timeDivision)
@@ -126,9 +128,10 @@ export class MidiFileItem extends FileItem {
         if (event.type === 9 && velocity) {
           const note = new MidiNote()
           note.start = curTime
-          note.velocity = velocity
+          note.velocity = velocity || 50
           note.pitch = pitch
-          if (!pitchMap.get(pitch)) pitchMap.set(pitch, [note])
+          note.channel = event.channel || 0
+          if (!pitchMap.get(pitch)) pitchMap.set(pitch, [])
           pitchMap.get(pitch)?.push(note)
         } else {
           if (!pitchMap.get(pitch)) return
@@ -150,7 +153,15 @@ export class MidiFileItem extends FileItem {
     const tempo = tracks.find(track => track.tempo)?.tempo
     if (tempo) tracks.forEach(track => track.tempo = track.tempo || tempo)
 
-    return tracks
+    return tracks.flatMap(midiTrack => {
+      const channels = _.chain(midiTrack.notes).groupBy('channel').values().value()
+      return channels.map(channel => {
+        const newTrack = new MidiTrack()
+        Object.assign(newTrack, midiTrack)
+        newTrack.notes = channel
+        return newTrack
+      })
+    })
   }
 }
 
@@ -199,19 +210,32 @@ export class OtomadConfig {
 }
 
 const STATIC_FILES = {
-  甩葱歌: new MidiFileItem({ path: '甩葱歌.mid' }),
-  使徒来袭: new MidiFileItem({ path: '使徒来袭.mid' }),
-  野蜂飞舞: new MidiFileItem({ path: '野蜂飞舞.mid' }),
-  卡农: new MidiFileItem({ path: '卡农.mid' }),
-  欢乐颂: new MidiFileItem({ path: '欢乐颂.mid' }),
-  G大调小步舞曲: new MidiFileItem({ path: 'G大调小步舞曲 巴赫.mid' }),
-
-  VAN: new ImageFileItem({ path: 'VAN.png' }),
-  说的道理: new ImageFileItem({ path: '说的道理.png' }),
+  "albida": new MidiFileItem({ path: "albida.mid" }),
+  "flower": new MidiFileItem({ path: "flower.mid" }),
+  "lisa-riccia": new MidiFileItem({ path: "lisa-riccia.mid" }),
+  "MC": new MidiFileItem({ path: "MC.mid" }),
+  "Metal Masters Music - Metal Beat": new MidiFileItem({ path: "Metal Masters Music - Metal Beat.mid" }),
+  "red zone": new MidiFileItem({ path: "red zone.mid" }),
+  "rolling_girl": new MidiFileItem({ path: "rolling_girl.mid" }),
+  "Undertale_Undertale_Piano": new MidiFileItem({ path: "Undertale_Undertale_Piano.mid" }),
+  "Your_Best_Nightmare_-_Undertale": new MidiFileItem({ path: "Your_Best_Nightmare_-_Undertale.mid" }),
+  "上海红茶馆": new MidiFileItem({ path: "上海红茶馆.mid" }),
+  "俄罗斯方块": new MidiFileItem({ path: "俄罗斯方块.mid" }),
+  "小圆Magia": new MidiFileItem({ path: "小圆Magia.mid" }),
+  "少女幻葬": new MidiFileItem({ path: "少女幻葬.mid" }),
+  "思出亿千万": new MidiFileItem({ path: "思出亿千万.mid" }),
+  "植物大战僵尸": new MidiFileItem({ path: "植物大战僵尸.mid" }),
+  "献给逝去公主的七重奏交响乐": new MidiFileItem({ path: "献给逝去公主的七重奏交响乐.mid" }),
+  "甩葱歌": new MidiFileItem({ path: "甩葱歌.mid" }),
+  "稲田姫様に叱られるから": new MidiFileItem({ path: "稲田姫様に叱られるから.mid" }),
+  "算术教室": new MidiFileItem({ path: "算术教室.mid" }),
+  "野蜂飞舞": new MidiFileItem({ path: "野蜂飞舞.mid" }),
+  "鸟之诗": new MidiFileItem({ path: "鸟之诗.mid" }),
+  "琪露诺的完美算数教室": new MidiFileItem({ path: "琪露诺的完美算数教室.mid" }),
+  
+  "VAN": new ImageFileItem({ path: "VAN.png" }),
 
   fa: new SoundFileItem({ path: 'fa.mp3', offset: 0.025, loopRange: [0.079, 0.096] }),
-  狗叫: new SoundFileItem({ path: '狗叫.wav', offset: 0.13, loopRange: [0.203, 0.213] }),
-  钟: new SoundFileItem({ path: '钟.wav', offset: 0.22 }),
 }
 
 /** 文件库 */

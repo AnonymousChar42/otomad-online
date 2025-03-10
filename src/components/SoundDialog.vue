@@ -97,5 +97,6 @@ defineExpose({ show })
   background-color: red;
   width: 2px;
   height: 100%;
+  z-index: 100;
 }
 </style>
