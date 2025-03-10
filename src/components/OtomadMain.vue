@@ -35,11 +35,11 @@
         </div>
       </div>
     </div>
-
     <MidiTracksDialog ref="midiTracksDialogRef" />
     <SoundDialog ref="soundDialogRef" />
     <FileLibraryDialog ref="fileLibDialogRef" />
     <ImageDialog ref="imageDialogRef" />
+    <MyParticles style="z-index: -300;" />
   </div>
 </template>
 
@@ -51,6 +51,7 @@ import MidiTracksDialog from './MidiTracksDialog.vue'
 import SoundDialog from './SoundDialog.vue'
 import ImageDialog from './ImageDialog.vue'
 import FileLibraryDialog from './FileLibraryDialog.vue'
+import MyParticles from './MyParticles.vue'
 import type { Arrayable } from 'element-plus/es/utils/typescript.mjs'
 const keyList: (keyof OtomadConfig)[] = ['midi', 'sound', 'image']
 
@@ -79,7 +80,7 @@ const handleCfgChange = (config: OtomadConfig) => {
 const audioCrx = reactive(new MyAudioContext())
 const play = async () => {
   const { sound, midi } = otomad.curConfig
-  audioCrx.playMidi(midi, sound)
+  audioCrx.playMidi(midi, sound, audioCrx.progress)
 }
 
 const handleProgressChange = (progress: Arrayable<number>) => {
