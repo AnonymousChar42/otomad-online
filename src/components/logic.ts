@@ -2,7 +2,7 @@ import type { Midi } from 'midi-parser-js'
 import MidiParser from 'midi-parser-js'
 import axios from 'axios'
 import localForage from "localforage";
-import _ from 'lodash'
+import _, { filter } from 'lodash'
 import { reactive } from 'vue'
 
 
@@ -85,11 +85,18 @@ export class FileItem {
 export class MidiFileItem extends FileItem {
   isMidi = true
   tracks: MidiTrack[] = []
+  /** 微秒/拍 */
+  deltaTime = 0
+  /** 总时长(ms) */
+  totalTime = 0
   /** 返回 */
   async init() {
     if (this.tracks.length) return
     return this.getFile().then(async file => {
       this.tracks = await this.file2tracks(file)
+      const deltaTime = this.tracks[0].tickDuration * 1e3
+      this.deltaTime = deltaTime
+      this.totalTime = Math.max(...this.tracks.flatMap(track => track.notes).map(note => note.end)) * deltaTime
     })
   }
   /** 文件转音符 */
@@ -232,7 +239,7 @@ const STATIC_FILES = {
   "野蜂飞舞": new MidiFileItem({ path: "野蜂飞舞.mid" }),
   "鸟之诗": new MidiFileItem({ path: "鸟之诗.mid" }),
   "琪露诺的完美算数教室": new MidiFileItem({ path: "琪露诺的完美算数教室.mid" }),
-  
+
   "VAN": new ImageFileItem({ path: "VAN.png" }),
 
   fa: new SoundFileItem({ path: 'fa.mp3', offset: 0.025, loopRange: [0.079, 0.096] }),
@@ -313,6 +320,8 @@ export class MyAudioContext {
   duration = 0
   counter: number[] = []
   progress = 0
+  starProgressTime = 0
+  playId = _.uniqueId('audio-ctx')
   init(buffer: AudioBuffer) {
     this.buffer = buffer
     if (this.ctx && this.ctx.state !== 'closed') this.ctx.close()
@@ -350,7 +359,7 @@ export class MyAudioContext {
     const pitchDifference = pitch - centralCPitch
     return Math.pow(2, pitchDifference / 12)
   }
-  startCount(midi?: MidiFileItem) {
+  startCount(midi?: MidiFileItem, playId?: string) {
     if (!midi || !midi.tracks[0]) return
     const deltaTime = midi.tracks[0].tickDuration * 1e3
     const starts = midi.tracks
@@ -362,8 +371,8 @@ export class MyAudioContext {
 
     const startTime = new Date().getTime()
     const updateProgress = () => {
-      if (!this.playing) return
-      const time = new Date().getTime() - startTime
+      if (!this.playing || this.playId !== playId) return
+      const time = new Date().getTime() + this.starProgressTime - startTime
       counter.forEach((timeIdx, index) => {
         if (time < starts[index][timeIdx]) return
         while (time >= starts[index][timeIdx]) timeIdx++
@@ -373,39 +382,55 @@ export class MyAudioContext {
     }
     updateProgress()
   }
-  startProgress(midi?: MidiFileItem) {
+  startProgress(midi?: MidiFileItem, playId?: string) {
     if (!midi || !midi.tracks[0]) return
-    const deltaTime = midi.tracks[0].tickDuration * 1e3
-    const totalTime = Math.max(...midi.tracks.flatMap(track => track.notes).map(note => note.end)) * deltaTime
+    const totalTime = midi.totalTime
     const startTime = new Date().getTime()
+    // console.log(this.playId, playId, this.starProgressTime, startTime, totalTime)
     const updateProgress = () => {
-      if (!this.playing) return this.progress = 0
-      this.progress = _.round((new Date().getTime() - startTime) / totalTime, 5)
+      if (!this.playing || this.playId !== playId) return
+      this.progress = _.round((new Date().getTime() + this.starProgressTime - startTime) / totalTime, 5)
       requestAnimationFrame(updateProgress)
     }
     updateProgress()
   }
-  playMidi(midi?: MidiFileItem, sound?: SoundFileItem) {
+  playMidi(midi?: MidiFileItem, sound?: SoundFileItem, startPerc = 0) {
+    this.pause()
     if (!midi || !sound) return
+    this.playId = _.uniqueId('audio-ctx')
     const track = midi?.tracks[0]
     if (!track) return
     this.init(sound.buffer as AudioBuffer)
     const notes = midi?.tracks.flatMap(track => track.selected ? track.notes : []) || []
     const deltaTime = track.tickDuration
     const { offset, loopRange: [loopStart, loopEnd] } = sound
+    this.starProgressTime = startPerc * midi.totalTime
+    const starProgressSec = this.starProgressTime / 1e3
+
     this.playMulti(notes.map(note => {
       const playbackRate = this.calculatePlaybackRate(note.pitch)
-      return {
+      const isPlayingNote = _.inRange(starProgressSec, note.start * deltaTime, note.end * deltaTime)
+      const playedTime = starProgressSec - note.start * deltaTime
+      // 正在播放的音符
+      return isPlayingNote ? {
         playbackRate,
-        when: note.start * deltaTime,
+        when: 0,
+        offset: offset + playedTime,
+        velocity: note.velocity,
+        loopStart, loopEnd,
+        duration: (note.end - note.start) * deltaTime - playedTime,
+      } : {
+        playbackRate,
+        when: note.start * deltaTime - starProgressSec,
         offset,
         velocity: note.velocity,
         loopStart, loopEnd,
         duration: (note.end - note.start) * deltaTime,
       }
-    }))
-    this.startCount(midi)
-    this.startProgress(midi)
+
+    }).filter(item => item.when >= 0))
+    this.startCount(midi, this.playId)
+    this.startProgress(midi, this.playId)
   }
   async playMulti(optList: MyCtxOption[]) {
     this.playing = true
@@ -434,9 +459,8 @@ export class MyAudioContext {
     })
     this.sourceList = sourceList
   }
-  stop() {
+  pause() {
     this.playing = false
-    this.progress = 0
     if (this.ctx && this.ctx.state !== 'closed') this.ctx?.close()
   }
 

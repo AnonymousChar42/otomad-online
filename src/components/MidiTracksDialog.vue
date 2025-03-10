@@ -38,7 +38,7 @@ const selectTrack = (track: MidiTrack) => {
 
 defineExpose({ show })
 
-const time2px = (t: number) => t / 5
+const time2px = (t: number) => t / 20
 
 </script>
 

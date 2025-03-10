@@ -2,12 +2,13 @@
   <div class="otomad-main flex-col">
     <div class="wrapper p-20 flex-col flex-1">
       <div class="flex-row mb-10">
-        <el-button class="mr-20" type="primary" @click="showFileLib">素材库</el-button>
         <div class="flex-row items-center">
           <div class="mr-10">配置选择</div>
-          <el-select value-key="id" v-model="otomad.curConfig" @change="handleCfgChange">
+          <el-select value-key="id" v-model="otomad.curConfig" @change="handleCfgChange" class="mr-10">
             <el-option v-for="item in otomad.configList" :key="item.id" :label="item.name" :value="item" />
           </el-select>
+          <el-button type="primary">新建配置</el-button>
+          <el-button type="primary" @click="showFileLib">素材库</el-button>
         </div>
       </div>
 
@@ -22,10 +23,10 @@
 
       <div class="flex-1">
         <div class="flex-row">
-          <el-button type="primary" @click="stop" v-if="audioCrx.playing">stop</el-button>
+          <el-button type="primary" @click="pause" v-if="audioCrx.playing">stop</el-button>
           <el-button type="primary" @click="play" v-else>play</el-button>
-          <ElSlider :model-value="audioCrx.progress" :step="1e-5" :max="1" class="unselectable flex-1 ml-50"
-            :show-tooltip="false" />
+          <ElSlider v-model="audioCrx.progress" :step="1e-5" :max="1" class="flex-1 ml-50" :show-tooltip="false"
+            @input="handleProgressChange" />
         </div>
         <div class="img-row unselectable m-100">
           <img :src="otomad.curConfig.image?.src" :class="count % 2 ? 'img-flip' : 'img-unflip'"
@@ -50,6 +51,7 @@ import MidiTracksDialog from './MidiTracksDialog.vue'
 import SoundDialog from './SoundDialog.vue'
 import ImageDialog from './ImageDialog.vue'
 import FileLibraryDialog from './FileLibraryDialog.vue'
+import type { Arrayable } from 'element-plus/es/utils/typescript.mjs'
 const keyList: (keyof OtomadConfig)[] = ['midi', 'sound', 'image']
 
 const fileLibDialogRef = ref<InstanceType<typeof FileLibraryDialog>>()
@@ -80,8 +82,13 @@ const play = async () => {
   audioCrx.playMidi(midi, sound)
 }
 
-const stop = () => {
-  audioCrx.stop()
+const handleProgressChange = (progress: Arrayable<number>) => {
+  const { sound, midi } = otomad.curConfig
+  audioCrx.playMidi(midi, sound, progress as number)
+}
+
+const pause = () => {
+  audioCrx.pause()
 }
 
 const imageWidth = computed(() => (100 / audioCrx.counter.length))
@@ -90,7 +97,7 @@ const handleKeyDown = (e: KeyboardEvent) => {
   if (e.code !== "Space") return
   if (document.activeElement?.nodeName === "INPUT") return
 
-  if (audioCrx.playing) stop()
+  if (audioCrx.playing) pause()
   else play()
 }
 

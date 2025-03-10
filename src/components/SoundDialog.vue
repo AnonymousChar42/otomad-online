@@ -56,12 +56,12 @@ const play = async () => {
 }
 
 const stop = () => {
-  audioCrx.stop()
+  audioCrx.pause()
 }
 
 const close = () => {
   visible.value = false
-  audioCrx.stop()
+  audioCrx.pause()
 }
 
 const lines = computed(() => {
@@ -94,7 +94,7 @@ defineExpose({ show })
 
 .ver-line {
   position: absolute;
-  background-color: red;
+  background-color: var(--el-color-danger);;
   width: 2px;
   height: 100%;
   z-index: 100;
