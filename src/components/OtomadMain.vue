@@ -84,6 +84,7 @@ const play = async () => {
 }
 
 const handleProgressChange = (progress: Arrayable<number>) => {
+  if (!audioCrx.playing) return
   const { sound, midi } = otomad.curConfig
   audioCrx.playMidi(midi, sound, progress as number)
 }

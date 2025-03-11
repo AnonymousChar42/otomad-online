@@ -182,10 +182,12 @@ export class ImageFileItem extends FileItem {
 
 export class SoundFileItem extends FileItem {
   isSound = true
+  basePitch = 60
   loopRange: [number, number]
   offset: number
   constructor(data: Partial<SoundFileItem> | File) {
     super(data)
+    this.basePitch = 'basePitch' in data ? data.basePitch || 60 : 60
     this.loopRange = 'loopRange' in data ? data.loopRange || [0, 0] : [0, 0]
     this.offset = 'offset' in data ? data.offset || 0 : 0
     this.init().then(() => {
@@ -241,8 +243,10 @@ const STATIC_FILES = {
   "琪露诺的完美算数教室": new MidiFileItem({ path: "琪露诺的完美算数教室.mid" }),
 
   "VAN": new ImageFileItem({ path: "VAN.png" }),
+  "电棍": new ImageFileItem({ path: "电棍.png" }),
 
-  fa: new SoundFileItem({ path: 'fa.mp3', offset: 0.025, loopRange: [0.079, 0.096] }),
+  fa: new SoundFileItem({ path: 'fa.mp3', offset: 0.025, basePitch: 60, loopRange: [0.079, 0.096] }),
+  唢呐: new SoundFileItem({ path: '电棍唢呐2.mp3', offset: 0.082, basePitch: 70, loopRange: [0.314, 0.327] }),
 }
 
 /** 文件库 */
@@ -272,7 +276,7 @@ export class OtomadMain {
   /** 配置列表 */
   configList = [
     { name: '甩葱歌', midi: STATIC_FILES.甩葱歌, sound: STATIC_FILES.fa, image: STATIC_FILES.VAN },
-    { name: '野蜂飞舞', midi: STATIC_FILES.野蜂飞舞, sound: STATIC_FILES.fa, image: STATIC_FILES.VAN },
+    { name: '野蜂飞舞', midi: STATIC_FILES.野蜂飞舞, sound: STATIC_FILES.唢呐, image: STATIC_FILES.VAN },
   ].map(config => new OtomadConfig(config))
 
   /** 所有文件 */
@@ -353,10 +357,9 @@ export class MyAudioContext {
 
     updateProgress()
   }
-  calculatePlaybackRate(pitch: number) {
+  calculatePlaybackRate(pitch: number, basePitch = 60) {
     // MIDI音符编号60对应中央C
-    const centralCPitch = 60
-    const pitchDifference = pitch - centralCPitch
+    const pitchDifference = pitch - basePitch
     return Math.pow(2, pitchDifference / 12)
   }
   startCount(midi?: MidiFileItem, playId?: string) {
@@ -389,14 +392,16 @@ export class MyAudioContext {
     // console.log(this.playId, playId, this.starProgressTime, startTime, totalTime)
     const updateProgress = () => {
       if (!this.playing || this.playId !== playId) return
-      this.progress = _.round((new Date().getTime() + this.starProgressTime - startTime) / totalTime, 5)
+      this.progress = Math.min(_.round((new Date().getTime() + this.starProgressTime - startTime) / totalTime, 5), 1)
       requestAnimationFrame(updateProgress)
     }
     updateProgress()
   }
   playMidi(midi?: MidiFileItem, sound?: SoundFileItem, startPerc = 0) {
+    console.log(sound)
     this.pause()
     if (!midi || !sound) return
+    if (startPerc >= 1) startPerc = 0
     this.playId = _.uniqueId('audio-ctx')
     const track = midi?.tracks[0]
     if (!track) return
@@ -408,7 +413,7 @@ export class MyAudioContext {
     const starProgressSec = this.starProgressTime / 1e3
 
     this.playMulti(notes.map(note => {
-      const playbackRate = this.calculatePlaybackRate(note.pitch)
+      const playbackRate = this.calculatePlaybackRate(note.pitch, sound.basePitch)
       const isPlayingNote = _.inRange(starProgressSec, note.start * deltaTime, note.end * deltaTime)
       const playedTime = starProgressSec - note.start * deltaTime
       // 正在播放的音符
@@ -425,7 +430,7 @@ export class MyAudioContext {
         offset,
         velocity: note.velocity,
         loopStart, loopEnd,
-        duration: (note.end - note.start) * deltaTime,
+        duration: (note.end - note.start) * deltaTime + 0.2, // todo 不知为什么必须加这0.2s，某些音频才能出声
       }
 
     }).filter(item => item.when >= 0))

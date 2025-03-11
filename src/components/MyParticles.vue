@@ -1,12 +1,9 @@
 <template>
-  <vue-particles id="tsparticles" :particlesLoaded="particlesLoaded" :options="options" />
+  <vue-particles id="tsparticles" :options="options" />
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
-const particlesLoaded = async container => {
-  console.log("Particles container loaded", container);
-};
 
 const options = {
   fpsLimit: 120,
@@ -39,14 +36,7 @@ const options = {
   },
   particles: {
     color: {
-      value: '#000000'
-    },
-    links: {
-      color: '#000000',
-      distance: 150,
-      enable: true,
-      opacity: 0.5,
-      width: 1
+      value: '#409eff'
     },
     move: {
       direction: 'none',
@@ -69,7 +59,7 @@ const options = {
       type: 'circle'
     },
     size: {
-      value: { min: 1, max: 5 }
+      value: { min: 10, max: 5 }
     }
   },
   detectRetina: true
