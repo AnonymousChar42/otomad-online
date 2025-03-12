@@ -246,7 +246,7 @@ const STATIC_FILES = {
   "电棍": new ImageFileItem({ path: "电棍.png" }),
 
   fa: new SoundFileItem({ path: 'fa.mp3', offset: 0.025, basePitch: 60, loopRange: [0.079, 0.096] }),
-  唢呐: new SoundFileItem({ path: '电棍唢呐2.mp3', offset: 0.082, basePitch: 70, loopRange: [0.314, 0.327] }),
+  唢呐: new SoundFileItem({ path: '电棍唢呐2.mp3', offset: 0.082, basePitch: 50, loopRange: [0.314, 0.327] }),
 }
 
 /** 文件库 */
@@ -349,7 +349,7 @@ export class MyAudioContext {
       this.ctx?.close()
     }
     const updateProgress = () => {
-      const currentTime = this.curTime
+      const currentTime = this.getCurTime(playbackRate)
       callback?.(currentTime)
       if (!this.playing) return
       requestAnimationFrame(updateProgress);
@@ -413,7 +413,7 @@ export class MyAudioContext {
     const starProgressSec = this.starProgressTime / 1e3
 
     this.playMulti(notes.map(note => {
-      const playbackRate = this.calculatePlaybackRate(note.pitch, sound.basePitch)
+      const playbackRate = this.calculatePlaybackRate(note.pitch, 120 - sound.basePitch)
       const isPlayingNote = _.inRange(starProgressSec, note.start * deltaTime, note.end * deltaTime)
       const playedTime = starProgressSec - note.start * deltaTime
       // 正在播放的音符
@@ -469,11 +469,11 @@ export class MyAudioContext {
     if (this.ctx && this.ctx.state !== 'closed') this.ctx?.close()
   }
 
-  get curTime() {
+  getCurTime(playbackRate: number) {
     const source = this.source
     if (!this.playing || !source) return 0
     const { loopStart = 0, loopEnd = 0, loop } = source
-    const time = this.ctx!.currentTime + this.offset
+    const time = this.ctx!.currentTime * playbackRate + this.offset
     if (!loop || time <= loopEnd) return time
     return loopStart + (time - loopEnd) % (loopEnd - loopStart)
   }

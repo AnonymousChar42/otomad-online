@@ -8,6 +8,7 @@
       <div v-if="audioCrx.duration">
         <el-slider v-model="sound.offset" :step="0.001" :max="audioCrx.duration" />
         <el-slider v-model="sound.loopRange" range :step="0.001" :max="audioCrx.duration" />
+        <el-slider v-model="sound.basePitch" :step="1" :max="127" />
       </div>
       <el-button type="primary" @click="stop" v-if="audioCrx.playing">stop</el-button>
       <el-button type="primary" @click="play" v-else>play</el-button>
@@ -50,9 +51,10 @@ const show = async (soundItem?: SoundFileItem) => {
 
 const play = async () => {
   audioCrx.init(sound.value!.buffer as AudioBuffer)
+  const { offset, basePitch, loopRange: [loopStart, loopEnd] } = sound.value!
+  const playbackRate = audioCrx.calculatePlaybackRate(basePitch)
   const callback = (time: number) => wavesurfer?.setTime(time)
-  const { offset, loopRange: [loopStart, loopEnd] } = sound.value!
-  audioCrx?.play({ offset, loopStart, loopEnd, callback })
+  audioCrx?.play({ offset, loopStart, loopEnd, callback, playbackRate })
 }
 
 const stop = () => {
@@ -94,7 +96,8 @@ defineExpose({ show })
 
 .ver-line {
   position: absolute;
-  background-color: var(--el-color-danger);;
+  background-color: var(--el-color-danger);
+  ;
   width: 2px;
   height: 100%;
   z-index: 100;
