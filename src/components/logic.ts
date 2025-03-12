@@ -241,6 +241,11 @@ const STATIC_FILES = {
   "野蜂飞舞": new MidiFileItem({ path: "野蜂飞舞.mid" }),
   "鸟之诗": new MidiFileItem({ path: "鸟之诗.mid" }),
   "琪露诺的完美算数教室": new MidiFileItem({ path: "琪露诺的完美算数教室.mid" }),
+  "Astronomia": new MidiFileItem({ path: "Astronomia.mid" }),
+  "残酷天使行动纲领": new MidiFileItem({ path: "残酷天使行动纲领.mid" }),
+  "嗵嗵": new MidiFileItem({ path: "嗵嗵.mid" }),
+  "黄金之风": new MidiFileItem({ path: "JOJO的奇妙冒险 黄金之风.mid" }),
+  
 
   "VAN": new ImageFileItem({ path: "VAN.png" }),
   "电棍": new ImageFileItem({ path: "电棍.png" }),
@@ -399,6 +404,7 @@ export class MyAudioContext {
   // 很坑的一点是，如果duration < offset + loopStart，则无声音。所以在这把区间去掉
   fixStartEnd(option: MyCtxOption) {
     const { offset = 0, loopStart = 0, duration = 0 } = option
+    if (!duration) return option
     if (option.loopStart || option.loopEnd && duration < offset + loopStart) {
       option.loopStart = 0
       option.loopEnd = 0
@@ -409,6 +415,7 @@ export class MyAudioContext {
     console.log(sound)
     this.pause()
     if (!midi || !sound) return
+    console.log(startPerc)
     if (startPerc >= 1) startPerc = 0
     this.playId = _.uniqueId('audio-ctx')
     const track = midi?.tracks[0]
