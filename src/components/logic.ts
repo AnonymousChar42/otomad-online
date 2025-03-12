@@ -340,7 +340,7 @@ export class MyAudioContext {
   async play({ when = 0, offset = 0, loopStart = 0, loopEnd = 0, duration, playbackRate = 1, callback }: MyCtxOption = {}) {
     const source = this.source!
     this.offset = offset
-    if (loopStart !== loopEnd) Object.assign(source, { loopStart, loopEnd, loop: true })
+    if (loopStart !== loopEnd) Object.assign(source, this.fixStartEnd({ offset, loopStart, loopEnd, loop: true, duration } as MyCtxOption))
     source.playbackRate.value = playbackRate
     source.start(when, offset, duration)
     this.playing = true
@@ -389,13 +389,21 @@ export class MyAudioContext {
     if (!midi || !midi.tracks[0]) return
     const totalTime = midi.totalTime
     const startTime = new Date().getTime()
-    // console.log(this.playId, playId, this.starProgressTime, startTime, totalTime)
     const updateProgress = () => {
       if (!this.playing || this.playId !== playId) return
       this.progress = Math.min(_.round((new Date().getTime() + this.starProgressTime - startTime) / totalTime, 5), 1)
       requestAnimationFrame(updateProgress)
     }
     updateProgress()
+  }
+  // 很坑的一点是，如果duration < offset + loopStart，则无声音。所以在这把区间去掉
+  fixStartEnd(option: MyCtxOption) {
+    const { offset = 0, loopStart = 0, duration = 0 } = option
+    if (option.loopStart || option.loopEnd && duration < offset + loopStart) {
+      option.loopStart = 0
+      option.loopEnd = 0
+    }
+    return option
   }
   playMidi(midi?: MidiFileItem, sound?: SoundFileItem, startPerc = 0) {
     console.log(sound)
@@ -417,7 +425,7 @@ export class MyAudioContext {
       const isPlayingNote = _.inRange(starProgressSec, note.start * deltaTime, note.end * deltaTime)
       const playedTime = starProgressSec - note.start * deltaTime
       // 正在播放的音符
-      return isPlayingNote ? {
+      const option = isPlayingNote ? {
         playbackRate,
         when: 0,
         offset: offset + playedTime,
@@ -430,10 +438,10 @@ export class MyAudioContext {
         offset,
         velocity: note.velocity,
         loopStart, loopEnd,
-        duration: (note.end - note.start) * deltaTime + 0.2, // todo 不知为什么必须加这0.2s，某些音频才能出声
+        duration: (note.end - note.start) * deltaTime
       }
-
-    }).filter(item => item.when >= 0))
+      return this.fixStartEnd(option)
+    }).filter(item => (item.when ?? 0) >= 0))
     this.startCount(midi, this.playId)
     this.startProgress(midi, this.playId)
   }
@@ -474,7 +482,7 @@ export class MyAudioContext {
     if (!this.playing || !source) return 0
     const { loopStart = 0, loopEnd = 0, loop } = source
     const time = this.ctx!.currentTime * playbackRate + this.offset
-    if (!loop || time <= loopEnd) return time
+    if (!loop || loopStart === loopEnd || time <= loopEnd) return time
     return loopStart + (time - loopEnd) % (loopEnd - loopStart)
   }
 }
