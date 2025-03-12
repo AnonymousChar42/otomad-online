@@ -116,7 +116,6 @@ export class MidiFileItem extends FileItem {
   }
   /** midi转音符 */
   midi2tracks(midi: Midi) {
-    console.log(midi)
     const tracks = midi.track.map(track => {
       const midiTrack = new MidiTrack()
       midiTrack.setTimeDivision(midi.timeDivision)
@@ -245,7 +244,7 @@ const STATIC_FILES = {
   "残酷天使行动纲领": new MidiFileItem({ path: "残酷天使行动纲领.mid" }),
   "嗵嗵": new MidiFileItem({ path: "嗵嗵.mid" }),
   "黄金之风": new MidiFileItem({ path: "JOJO的奇妙冒险 黄金之风.mid" }),
-  
+
 
   "VAN": new ImageFileItem({ path: "VAN.png" }),
   "电棍": new ImageFileItem({ path: "电棍.png" }),
@@ -401,21 +400,19 @@ export class MyAudioContext {
     }
     updateProgress()
   }
-  // 很坑的一点是，如果duration < offset + loopStart，则无声音。所以在这把区间去掉
+  // 很坑的一点是，如果duration < loopStart - offset，则无声音。所以在这把区间去掉
   fixStartEnd(option: MyCtxOption) {
     const { offset = 0, loopStart = 0, duration = 0 } = option
     if (!duration) return option
-    if (option.loopStart || option.loopEnd && duration < offset + loopStart) {
+    if ((option.loopStart || option.loopEnd) && duration < loopStart - offset) {
       option.loopStart = 0
       option.loopEnd = 0
     }
     return option
   }
   playMidi(midi?: MidiFileItem, sound?: SoundFileItem, startPerc = 0) {
-    console.log(sound)
     this.pause()
     if (!midi || !sound) return
-    console.log(startPerc)
     if (startPerc >= 1) startPerc = 0
     this.playId = _.uniqueId('audio-ctx')
     const track = midi?.tracks[0]
