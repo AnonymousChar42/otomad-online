@@ -75,7 +75,7 @@ export class FileItem {
     throw new Error('找不到文件')
   }
   toJSON() {
-    return _.omit(this, 'raw')
+    return _.omit(this, 'raw', 'src')
   }
 }
 
@@ -338,6 +338,13 @@ export class OtomadMain {
       })
     })
   }
+  clearStore() {
+    localForage.clear()
+  }
+  addConfig() {
+    this.configList.push(new OtomadConfig())
+    this.curConfig = this.configList[this.configList.length - 1]
+  }
 
   /** 初始化 读取配置 */
   async init(index?: number) {
@@ -347,10 +354,6 @@ export class OtomadMain {
     curConfig.init()
     this.curConfig = curConfig
   }
-  get fileList() {
-    return [...this.midiFiles]
-  }
-
 }
 
 

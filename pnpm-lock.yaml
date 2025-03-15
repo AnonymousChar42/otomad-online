@@ -35,6 +35,9 @@ importers:
       midi-parser-js:
         specifier: ^4.0.4
         version: 4.0.4
+      siriwave:
+        specifier: ^2.4.0
+        version: 2.4.0
       vue:
         specifier: ^3.5.12
         version: 3.5.13(typescript@5.5.4)
@@ -1344,6 +1347,9 @@ packages:
   shell-quote@1.8.2:
     resolution: {integrity: sha512-AzqKpGKjrj7EM6rKVQEPpB288oCfnrEIuyoT9cyF4nmGa7V8Zk6f7RRqYisX8X9m+Q7bd632aZW4ky7EhbQztA==}
     engines: {node: '>= 0.4'}
+
+  siriwave@2.4.0:
+    resolution: {integrity: sha512-J9X/URPuwXw800mJnnTnEIaDn2n9ZXWEX827oRdIGMwOtFi2FF5Xet2ifQhXFLx7/SYmEQ2UOxtUZP6bUkNqeQ==}
 
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
@@ -2823,6 +2829,8 @@ snapshots:
   shebang-regex@3.0.0: {}
 
   shell-quote@1.8.2: {}
+
+  siriwave@2.4.0: {}
 
   source-map-js@1.2.1: {}
 

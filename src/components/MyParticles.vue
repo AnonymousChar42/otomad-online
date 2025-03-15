@@ -43,7 +43,7 @@ const options = {
       enable: true,
       outModes: 'bounce',
       random: false,
-      speed: 6,
+      speed: 10,
       straight: false
     },
     number: {

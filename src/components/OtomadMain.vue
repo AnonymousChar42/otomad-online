@@ -7,8 +7,9 @@
           <el-select value-key="id" v-model="otomad.curConfig" @change="handleCfgChange" class="mr-10">
             <el-option v-for="item in otomad.configList" :key="item.id" :label="item.name" :value="item" />
           </el-select>
-          <el-button type="primary">新建配置</el-button>
-          <el-button type="primary" @click="showFileLib">素材库</el-button>
+          <el-input v-model="otomad.curConfig.name" placeholder="配置名称" style="width: 150px;" class="mr-10" />
+          <el-button type="primary"  @click="addConfig()">新建配置</el-button>
+          <el-button type="primary" @click="showFileLib()">素材库</el-button>
           <el-button type="primary" @click="save()">保存</el-button>
         </div>
       </div>
@@ -34,6 +35,7 @@
             :width="imageWidth + '%'" v-for="count, index in audioCrx.counter" :key="index" class="img-cell"
             :style="{ left: imageWidth * index + '%' }" />
           <img v-if="!audioCrx.counter.length" :src="otomad.curConfig.image?.src" class="img-center" />
+          <SiriWave :model-value="audioCrx.playing" class="siri-wave" />
         </div>
       </div>
     </div>
@@ -47,14 +49,16 @@
 
 <script setup lang="ts">
 import { reactive, ref, computed, onMounted, onUnmounted } from 'vue'
-import { ElButton, ElSelect, ElOption, ElSlider, ElMessage } from 'element-plus'
+import { ElButton, ElInput, ElSelect, ElOption, ElSlider, ElMessage } from 'element-plus'
 import { OtomadMain, OtomadConfig, MyAudioContext } from './logic'
 import MidiTracksDialog from './MidiTracksDialog.vue'
 import SoundDialog from './SoundDialog.vue'
 import ImageDialog from './ImageDialog.vue'
 import FileLibraryDialog from './FileLibraryDialog.vue'
 import MyParticles from './MyParticles.vue'
+import SiriWave from './SiriWave.vue'
 import type { Arrayable } from 'element-plus/es/utils/typescript.mjs'
+
 const keyList: (keyof OtomadConfig)[] = ['midi', 'sound', 'image']
 
 const fileLibDialogRef = ref<InstanceType<typeof FileLibraryDialog>>()
@@ -103,6 +107,10 @@ const handleKeyDown = (e: KeyboardEvent) => {
 
   if (audioCrx.playing) pause()
   else play()
+}
+
+const addConfig = () => {
+  otomad.addConfig()
 }
 
 const save = () => {
@@ -178,6 +186,12 @@ body {
       max-height: 30vh;
       margin-left: 50%;
       transform: translateX(-50%);
+    }
+
+    .siri-wave {
+      z-index: -300;
+      top: 20vh;
+      filter: drop-shadow(16px 16px 10px black) blur(2px) opacity(50%) grayscale(20%);
     }
   }
 }
