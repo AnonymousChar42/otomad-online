@@ -61,7 +61,6 @@ export class FileItem {
     }
   }
   async init() {
-    if (this.src) return
     return this.getFile().then(file => {
       this.raw = file
       this.src = URL.createObjectURL(file)
@@ -214,6 +213,7 @@ export class OtomadConfig {
   async init() {
     if (!this.midi) return
     await this.midi.init()
+    await this.image?.init()
   }
 }
 
@@ -236,11 +236,9 @@ const STATIC_FILES = {
   "献给逝去公主的七重奏交响乐": new MidiFileItem({ path: "献给逝去公主的七重奏交响乐.mid" }),
   "甩葱歌": new MidiFileItem({ path: "甩葱歌.mid" }),
   "稲田姫様に叱られるから": new MidiFileItem({ path: "稲田姫様に叱られるから.mid" }),
-  "算术教室": new MidiFileItem({ path: "算术教室.mid" }),
   "野蜂飞舞": new MidiFileItem({ path: "野蜂飞舞.mid" }),
   "鸟之诗": new MidiFileItem({ path: "鸟之诗.mid" }),
   "琪露诺的完美算数教室": new MidiFileItem({ path: "琪露诺的完美算数教室.mid" }),
-  "Astronomia": new MidiFileItem({ path: "Astronomia.mid" }),
   "残酷天使行动纲领": new MidiFileItem({ path: "残酷天使行动纲领.mid" }),
   "嗵嗵": new MidiFileItem({ path: "嗵嗵.mid" }),
   "黄金之风": new MidiFileItem({ path: "JOJO的奇妙冒险 黄金之风.mid" }),
@@ -248,9 +246,11 @@ const STATIC_FILES = {
 
   "VAN": new ImageFileItem({ path: "VAN.png" }),
   "电棍": new ImageFileItem({ path: "电棍.png" }),
+  "刘醒": new ImageFileItem({ path: "刘醒.png" }),
 
   fa: new SoundFileItem({ path: 'fa.mp3', offset: 0.025, basePitch: 60, loopRange: [0.079, 0.096] }),
-  唢呐: new SoundFileItem({ path: '电棍唢呐2.mp3', offset: 0.082, basePitch: 50, loopRange: [0.314, 0.327] }),
+  吔: new SoundFileItem({ path: '吔.mp3', offset: 0.061, basePitch: 50, loopRange: [0.187, 0.226] }),
+  唢呐: new SoundFileItem({ path: '电棍唢呐.mp3', offset: 0.082, basePitch: 50, loopRange: [0.314, 0.327] }),
 }
 
 /** 文件库 */
@@ -279,8 +279,9 @@ export class OtomadMain {
 
   /** 配置列表 */
   configList = [
-    { name: '甩葱歌', midi: STATIC_FILES.甩葱歌, sound: STATIC_FILES.fa, image: STATIC_FILES.VAN },
-    { name: '野蜂飞舞', midi: STATIC_FILES.野蜂飞舞, sound: STATIC_FILES.唢呐, image: STATIC_FILES.VAN },
+    { name: '俄罗斯方块', midi: STATIC_FILES.俄罗斯方块, sound: STATIC_FILES.fa, image: STATIC_FILES.VAN },
+    { name: '野蜂飞舞', midi: STATIC_FILES.野蜂飞舞, sound: STATIC_FILES.唢呐, image: STATIC_FILES.电棍 },
+    { name: '鸟之诗', midi: STATIC_FILES.鸟之诗, sound: STATIC_FILES.吔, image: STATIC_FILES.刘醒 },
   ].map(config => new OtomadConfig(config))
 
   /** 所有文件 */

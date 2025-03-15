@@ -31,7 +31,8 @@
         <div class="img-row unselectable m-100">
           <img :src="otomad.curConfig.image?.src" :class="count % 2 ? 'img-flip' : 'img-unflip'"
             :width="imageWidth + '%'" v-for="count, index in audioCrx.counter" :key="index" class="img-cell"
-            :style="{ left: imageWidth * index + '%' }">
+            :style="{ left: imageWidth * index + '%' }" />
+          <img v-if="!audioCrx.counter.length" :src="otomad.curConfig.image?.src" class="img-center" />
         </div>
       </div>
     </div>
@@ -164,6 +165,11 @@ body {
 
     .img-flip {
       animation: flip-scale .1s ease-in-out;
+    }
+
+    .img-center {
+      margin-left: 50%;
+      transform: translateX(-50%);
     }
   }
 }

@@ -6,9 +6,11 @@
         <div v-for="line, index in lines" :key="index" v-bind="line" class="ver-line" />
       </div>
       <div v-if="audioCrx.duration">
-        <el-slider v-model="sound.offset" :step="0.001" :max="audioCrx.duration" />
-        <el-slider v-model="sound.loopRange" range :step="0.001" :max="audioCrx.duration" />
-        <el-slider v-model="sound.basePitch" :step="1" :max="127" />
+        <el-slider v-model="sound.offset" :step="0.001" :max="audioCrx.duration"
+          :format-tooltip="num => '开始时间 ' + num" />
+        <el-slider v-model="sound.loopRange" range :step="0.001" :max="audioCrx.duration"
+          :format-tooltip="num => '循环段 ' + num" />
+        <el-slider v-model="sound.basePitch" :step="1" :max="127" :format-tooltip="num => '音高 ' + num" />
       </div>
       <el-button type="primary" @click="stop" v-if="audioCrx.playing">stop</el-button>
       <el-button type="primary" @click="play" v-else>play</el-button>
