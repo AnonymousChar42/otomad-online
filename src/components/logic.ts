@@ -2,9 +2,8 @@ import type { Midi } from 'midi-parser-js'
 import MidiParser from 'midi-parser-js'
 import axios from 'axios'
 import localForage from "localforage";
-import _, { filter } from 'lodash'
+import _ from 'lodash'
 import { reactive } from 'vue'
-
 
 /** 轨道 */
 export class MidiTrack {
@@ -46,19 +45,15 @@ export class FileItem {
   isImage = false
   isSound = false
   raw?: File
-  constructor(data: Partial<FileItem> | File) {
-    this.id = _.uniqueId()
-    if (data instanceof File) {
-      // 上传的文件
-      this.storeKey = _.uniqueId('localForage')
-      this.name = data.name
-      localForage.setItem(this.storeKey, data)
-      this.raw = data
-    } else {
-      // 静态文件
-      Object.assign(this, data || {})
-      this.name = data.path as string
-    }
+  static create(cls: typeof FileItem, file: File) {
+    const storeKey = _.uniqueId(Date.now() + '-')
+    localForage.setItem(storeKey, file)
+    return new cls({ storeKey, name: file.name, raw: file })
+  }
+  constructor(data: Partial<FileItem>) {
+    this.id = _.uniqueId(Date.now() + '-')
+    Object.assign(this, data || {})
+    this.name = data.name || data.path as string
   }
   async init() {
     return this.getFile().then(file => {
@@ -67,7 +62,7 @@ export class FileItem {
     })
   }
   async getFile() {
-    if (this.raw) return this.raw
+    if (this.raw && !_.isEmpty(this.raw)) return this.raw
     if (this.path) {
       // 静态文件
       return axios.get(this.path, { responseType: 'blob' })
@@ -78,6 +73,9 @@ export class FileItem {
         .then(file => this.raw = file as File)
     }
     throw new Error('找不到文件')
+  }
+  toJSON() {
+    return _.omit(this, 'raw')
   }
 }
 
@@ -172,7 +170,7 @@ export class MidiFileItem extends FileItem {
 
 export class ImageFileItem extends FileItem {
   isImage = true
-  constructor(data: Partial<FileItem> | File) {
+  constructor(data: Partial<FileItem>) {
     super(data)
     this.init()
   }
@@ -183,7 +181,7 @@ export class SoundFileItem extends FileItem {
   basePitch = 60
   loopRange: [number, number]
   offset: number
-  constructor(data: Partial<SoundFileItem> | File) {
+  constructor(data: Partial<SoundFileItem>) {
     super(data)
     this.basePitch = 'basePitch' in data ? data.basePitch || 60 : 60
     this.loopRange = 'loopRange' in data ? data.loopRange || [0, 0] : [0, 0]
@@ -206,8 +204,11 @@ export class OtomadConfig {
   image?: ImageFileItem
   midi?: MidiFileItem
   constructor(config?: Partial<OtomadConfig>) {
-    this.id = _.uniqueId()
+    this.id = _.uniqueId(Date.now() + '-')
     Object.assign(this, config || {})
+    if (this.sound && !(this.sound instanceof FileItem)) this.sound = new SoundFileItem(this.sound)
+    if (this.image && !(this.image instanceof FileItem)) this.image = new ImageFileItem(this.image)
+    if (this.midi && !(this.midi instanceof FileItem)) this.midi = new MidiFileItem(this.midi)
   }
   /** 更新轨道 */
   async init() {
@@ -263,7 +264,7 @@ export class FileLibrary extends Array<FileItem> {
   }
   /** 文件上传 */
   addFile(file: File) {
-    const fileItem = reactive(new this.fileItemClass(file))
+    const fileItem = reactive(FileItem.create(this.fileItemClass, file))
     if (fileItem.isImage) fileItem.init()
     this.push(fileItem)
   }
@@ -279,9 +280,9 @@ export class OtomadMain {
 
   /** 配置列表 */
   configList = [
+    { name: '野蜂飞舞', midi: STATIC_FILES.野蜂飞舞, sound: STATIC_FILES.吔, image: STATIC_FILES.刘醒 },
     { name: '俄罗斯方块', midi: STATIC_FILES.俄罗斯方块, sound: STATIC_FILES.fa, image: STATIC_FILES.VAN },
-    { name: '野蜂飞舞', midi: STATIC_FILES.野蜂飞舞, sound: STATIC_FILES.唢呐, image: STATIC_FILES.电棍 },
-    { name: '鸟之诗', midi: STATIC_FILES.鸟之诗, sound: STATIC_FILES.吔, image: STATIC_FILES.刘醒 },
+    { name: '甩葱歌', midi: STATIC_FILES.甩葱歌, sound: STATIC_FILES.唢呐, image: STATIC_FILES.电棍 },
   ].map(config => new OtomadConfig(config))
 
   /** 所有文件 */
@@ -300,9 +301,47 @@ export class OtomadMain {
   get tracks() {
     return this.curConfig?.midi?.tracks || []
   }
+  async save() {
+    const save2local = (key: string, obj: object) => localForage.setItem(key, JSON.parse(JSON.stringify(obj)))
+    return Promise.all([
+      save2local('configList', this.configList),
+      save2local('fileLibrary', this.fileLibrary)
+    ])
+  }
+  /** 读取配置和文件 */
+  async load() {
+    await localForage.getItem<typeof this.fileLibrary>('fileLibrary').then((data) => {
+      if (!data) return
+      this.fileLibrary = {
+        midi: new FileLibrary(MidiFileItem, data.midi.map(item => new MidiFileItem(item))),
+        sound: new FileLibrary(SoundFileItem, data.sound.map(item => new SoundFileItem(item as SoundFileItem))),
+        image: new FileLibrary(ImageFileItem, data.image.map(item => new ImageFileItem(item)))
+      }
+    }).then(async () => {
+      return localForage.getItem<OtomadConfig[]>('configList').then(data => {
+        if (!data) return
+        this.configList = data.map(item => new OtomadConfig(item))
+      })
+    })
+    // 清除游离数据
+    localForage.keys().then(arr => {
+      const reserveKeys = new Set([
+        'configList',
+        'fileLibrary',
+        ...Object.values(this.fileLibrary).flatMap(arr => arr.map(item => item.storeKey))
+      ])
+
+      arr.forEach(key => {
+        if (!reserveKeys.has(key)) {
+          localForage.removeItem(key)
+        }
+      })
+    })
+  }
 
   /** 初始化 读取配置 */
   async init(index?: number) {
+    await this.load()
     index = _.isNil(index) ? this.configList.length - 1 : index
     const curConfig = this.configList[index]
     curConfig.init()

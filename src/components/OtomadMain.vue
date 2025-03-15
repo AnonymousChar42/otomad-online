@@ -9,6 +9,7 @@
           </el-select>
           <el-button type="primary">新建配置</el-button>
           <el-button type="primary" @click="showFileLib">素材库</el-button>
+          <el-button type="primary" @click="save()">保存</el-button>
         </div>
       </div>
 
@@ -46,7 +47,7 @@
 
 <script setup lang="ts">
 import { reactive, ref, computed, onMounted, onUnmounted } from 'vue'
-import { ElButton, ElSelect, ElOption, ElSlider } from 'element-plus'
+import { ElButton, ElSelect, ElOption, ElSlider, ElMessage } from 'element-plus'
 import { OtomadMain, OtomadConfig, MyAudioContext } from './logic'
 import MidiTracksDialog from './MidiTracksDialog.vue'
 import SoundDialog from './SoundDialog.vue'
@@ -102,6 +103,12 @@ const handleKeyDown = (e: KeyboardEvent) => {
 
   if (audioCrx.playing) pause()
   else play()
+}
+
+const save = () => {
+  otomad.save()
+    .then(() => ElMessage.success("保存成功"))
+    .catch(() => ElMessage.error("保存失败"))
 }
 
 
@@ -168,6 +175,7 @@ body {
     }
 
     .img-center {
+      max-height: 30vh;
       margin-left: 50%;
       transform: translateX(-50%);
     }
