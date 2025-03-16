@@ -201,7 +201,7 @@ export class SoundFileItem extends FileItem {
 
 export class OtomadConfig {
   id = ''
-  name = ''
+  name = '新建配置'
   sound?: SoundFileItem
   image?: ImageFileItem
   midi?: MidiFileItem
@@ -225,40 +225,39 @@ export class OtomadConfig {
 }
 
 const STATIC_FILES = {
-  "albida": new MidiFileItem({ path: "albida.mid" }),
-  "flower": new MidiFileItem({ path: "flower.mid" }),
-  "lisa-riccia": new MidiFileItem({ path: "lisa-riccia.mid" }),
+  "ALBIDA": new MidiFileItem({ path: "ALBIDA.mid" }),
+  "Flower": new MidiFileItem({ path: "Flower.mid" }),
+  "Giorno's Theme": new MidiFileItem({ path: "Giorno's Theme.mid" }),
+  "Lisa‐RICCIA": new MidiFileItem({ path: "Lisa‐RICCIA.mid" }),
   "MC": new MidiFileItem({ path: "MC.mid" }),
-  "Metal Masters Music - Metal Beat": new MidiFileItem({ path: "Metal Masters Music - Metal Beat.mid" }),
-  "red zone": new MidiFileItem({ path: "red zone.mid" }),
-  "rolling_girl": new MidiFileItem({ path: "rolling_girl.mid" }),
-  "Undertale_Undertale_Piano": new MidiFileItem({ path: "Undertale_Undertale_Piano.mid" }),
-  "Your_Best_Nightmare_-_Undertale": new MidiFileItem({ path: "Your_Best_Nightmare_-_Undertale.mid" }),
-  "上海红茶馆": new MidiFileItem({ path: "上海红茶馆.mid" }),
+  "Metal Beat": new MidiFileItem({ path: "Metal Beat.mid" }),
+  "Red Zone": new MidiFileItem({ path: "Red Zone.mid" }),
+  "Rolling Girl": new MidiFileItem({ path: "Rolling Girl.mid" }),
+  "Undertale": new MidiFileItem({ path: "Undertale.mid" }),
+  "Your Best Nightmare": new MidiFileItem({ path: "Your Best Nightmare.mid" }),
+  "上海紅茶館": new MidiFileItem({ path: "上海紅茶館.mid" }),
+  "亡き王女の為のセプテット": new MidiFileItem({ path: "亡き王女の為のセプテット.mid" }),
   "俄罗斯方块": new MidiFileItem({ path: "俄罗斯方块.mid" }),
-  "小圆Magia": new MidiFileItem({ path: "小圆Magia.mid" }),
+  "嗵嗵": new MidiFileItem({ path: "嗵嗵.mid" }),
   "少女幻葬": new MidiFileItem({ path: "少女幻葬.mid" }),
-  "思出亿千万": new MidiFileItem({ path: "思出亿千万.mid" }),
+  "思い出はおっくせんまん!": new MidiFileItem({ path: "思い出はおっくせんまん!.mid" }),
   "植物大战僵尸": new MidiFileItem({ path: "植物大战僵尸.mid" }),
-  "献给逝去公主的七重奏交响乐": new MidiFileItem({ path: "献给逝去公主的七重奏交响乐.mid" }),
+  "残酷な天使のテーゼ": new MidiFileItem({ path: "残酷な天使のテーゼ.mid" }),
+  "琪露诺的完美算数教室": new MidiFileItem({ path: "琪露诺的完美算数教室.mid" }),
   "甩葱歌": new MidiFileItem({ path: "甩葱歌.mid" }),
   "稲田姫様に叱られるから": new MidiFileItem({ path: "稲田姫様に叱られるから.mid" }),
   "野蜂飞舞": new MidiFileItem({ path: "野蜂飞舞.mid" }),
-  "鸟之诗": new MidiFileItem({ path: "鸟之诗.mid" }),
-  "琪露诺的完美算数教室": new MidiFileItem({ path: "琪露诺的完美算数教室.mid" }),
-  "残酷天使行动纲领": new MidiFileItem({ path: "残酷天使行动纲领.mid" }),
-  "嗵嗵": new MidiFileItem({ path: "嗵嗵.mid" }),
-  "黄金之风": new MidiFileItem({ path: "JOJO的奇妙冒险 黄金之风.mid" }),
-
+  "魔法少女まどか☆マギカ - Magia": new MidiFileItem({ path: "魔法少女まどか☆マギカ - Magia.mid" }),
+  "鳥の詩": new MidiFileItem({ path: "鳥の詩.mid" }),
 
   "VAN": new ImageFileItem({ path: "VAN.png" }),
-  "电棍": new ImageFileItem({ path: "电棍.png" }),
   "刘醒": new ImageFileItem({ path: "刘醒.png" }),
+  "电棍": new ImageFileItem({ path: "电棍.png" }),
   "魔理沙": new ImageFileItem({ path: "魔理沙.png" }),
-
+  
   fa: new SoundFileItem({ path: 'fa.mp3', offset: 0.025, basePitch: 60, loopRange: [0.079, 0.096] }),
   吔: new SoundFileItem({ path: '吔.mp3', offset: 0.061, basePitch: 50, loopRange: [0.187, 0.226] }),
-  唢呐: new SoundFileItem({ path: '电棍唢呐.mp3', offset: 0.082, basePitch: 50, loopRange: [0.314, 0.327] }),
+  电棍唢呐: new SoundFileItem({ path: '电棍唢呐.mp3', offset: 0.082, basePitch: 50, loopRange: [0.314, 0.327] }),
   UDK姐贵: new SoundFileItem({ path: 'UDK姐贵.mp3', offset: 0.082, basePitch: 54, loopRange: [0.251, 0.262] }),
 }
 
@@ -289,8 +288,8 @@ export class OtomadMain {
   /** 配置列表 */
   configList = [
     { name: '野蜂飞舞', midi: STATIC_FILES.野蜂飞舞, sound: STATIC_FILES.吔, image: STATIC_FILES.刘醒 },
-    { name: '俄罗斯方块', midi: STATIC_FILES.俄罗斯方块, sound: STATIC_FILES.唢呐, image: STATIC_FILES.电棍 },
-    { name: 'rolling_girl', midi: STATIC_FILES.rolling_girl, sound: STATIC_FILES.UDK姐贵, image: STATIC_FILES.魔理沙 },
+    { name: '俄罗斯方块', midi: STATIC_FILES.俄罗斯方块, sound: STATIC_FILES.电棍唢呐, image: STATIC_FILES.电棍 },
+    { name: '少女幻葬', midi: STATIC_FILES.少女幻葬, sound: STATIC_FILES.UDK姐贵, image: STATIC_FILES.魔理沙 },
     { name: '甩葱歌', midi: STATIC_FILES.甩葱歌, sound: STATIC_FILES.fa, image: STATIC_FILES.VAN },
   ].map(config => new OtomadConfig(config))
 

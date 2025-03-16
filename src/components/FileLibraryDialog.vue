@@ -97,6 +97,7 @@ defineExpose({ show })
 
       .file-item {
         display: inline-flex;
+        align-items: center;
       }
 
       .file-item:not(:last-child) {

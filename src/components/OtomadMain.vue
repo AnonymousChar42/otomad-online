@@ -77,7 +77,7 @@ const showDetail = (key: keyof OtomadConfig) => {
 const showFileLib = () => fileLibDialogRef.value?.show(otomad.fileLibrary)
 const otomad = reactive(new OtomadMain())
 otomad.init()
-otomad.clearStore()
+// otomad.clearStore()
 
 const handleCfgChange = (config: OtomadConfig) => {
   config.init()
@@ -171,6 +171,7 @@ body {
       position: absolute;
       max-height: 50vh;
       object-fit: contain;
+      filter: drop-shadow(16px 16px 10px rgba(128, 128, 128, 0.5));
     }
 
     .img-flip {
@@ -198,7 +199,7 @@ body {
     .siri-wave {
       z-index: -300;
       top: 20vh;
-      filter: drop-shadow(16px 16px 10px black) blur(2px) opacity(80%);
+      filter: drop-shadow(16px 16px 10px rgba(128, 128, 128, 0.5)) blur(2px) opacity(80%);
     }
   }
 }
