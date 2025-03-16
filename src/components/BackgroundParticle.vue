@@ -38,7 +38,7 @@ const init = () => {
 
   // 加载纹理
   const textureLoader = new THREE.TextureLoader();
-  const sprite = textureLoader.load('disc.png');
+  const sprite = textureLoader.load('assets/disc.png');
   sprite.colorSpace = THREE.SRGBColorSpace;
 
   // 生成随机粒子位置

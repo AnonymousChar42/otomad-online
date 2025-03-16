@@ -55,7 +55,7 @@ export class FileItem {
   constructor(data: Partial<FileItem>) {
     this.id = _.uniqueId(Date.now() + '-')
     Object.assign(this, data || {})
-    this.name = data.name || data.path as string
+    this.name = data.name || data.path?.replace('assets/', '') as string
   }
   async init() {
     return this.getFile().then(file => {
@@ -225,40 +225,40 @@ export class OtomadConfig {
 }
 
 const STATIC_FILES = {
-  "ALBIDA": new MidiFileItem({ path: "ALBIDA.mid" }),
-  "Flower": new MidiFileItem({ path: "Flower.mid" }),
-  "Giorno's Theme": new MidiFileItem({ path: "Giorno's Theme.mid" }),
-  "Lisa‐RICCIA": new MidiFileItem({ path: "Lisa‐RICCIA.mid" }),
-  "MC": new MidiFileItem({ path: "MC.mid" }),
-  "Metal Beat": new MidiFileItem({ path: "Metal Beat.mid" }),
-  "Red Zone": new MidiFileItem({ path: "Red Zone.mid" }),
-  "Rolling Girl": new MidiFileItem({ path: "Rolling Girl.mid" }),
-  "Undertale": new MidiFileItem({ path: "Undertale.mid" }),
-  "Your Best Nightmare": new MidiFileItem({ path: "Your Best Nightmare.mid" }),
-  "上海紅茶館": new MidiFileItem({ path: "上海紅茶館.mid" }),
-  "亡き王女の為のセプテット": new MidiFileItem({ path: "亡き王女の為のセプテット.mid" }),
-  "俄罗斯方块": new MidiFileItem({ path: "俄罗斯方块.mid" }),
-  "嗵嗵": new MidiFileItem({ path: "嗵嗵.mid" }),
-  "少女幻葬": new MidiFileItem({ path: "少女幻葬.mid" }),
-  "思い出はおっくせんまん!": new MidiFileItem({ path: "思い出はおっくせんまん!.mid" }),
-  "植物大战僵尸": new MidiFileItem({ path: "植物大战僵尸.mid" }),
-  "残酷な天使のテーゼ": new MidiFileItem({ path: "残酷な天使のテーゼ.mid" }),
-  "琪露诺的完美算数教室": new MidiFileItem({ path: "琪露诺的完美算数教室.mid" }),
-  "甩葱歌": new MidiFileItem({ path: "甩葱歌.mid" }),
-  "稲田姫様に叱られるから": new MidiFileItem({ path: "稲田姫様に叱られるから.mid" }),
-  "野蜂飞舞": new MidiFileItem({ path: "野蜂飞舞.mid" }),
-  "魔法少女まどか☆マギカ - Magia": new MidiFileItem({ path: "魔法少女まどか☆マギカ - Magia.mid" }),
-  "鳥の詩": new MidiFileItem({ path: "鳥の詩.mid" }),
+  "ALBIDA": new MidiFileItem({ path: "assets/ALBIDA.mid" }),
+  "Flower": new MidiFileItem({ path: "assets/Flower.mid" }),
+  "Giorno's Theme": new MidiFileItem({ path: "assets/Giorno's Theme.mid" }),
+  "Lisa‐RICCIA": new MidiFileItem({ path: "assets/Lisa‐RICCIA.mid" }),
+  "MC": new MidiFileItem({ path: "assets/MC.mid" }),
+  "Metal Beat": new MidiFileItem({ path: "assets/Metal Beat.mid" }),
+  "Red Zone": new MidiFileItem({ path: "assets/Red Zone.mid" }),
+  "Rolling Girl": new MidiFileItem({ path: "assets/Rolling Girl.mid" }),
+  "Undertale": new MidiFileItem({ path: "assets/Undertale.mid" }),
+  "Your Best Nightmare": new MidiFileItem({ path: "assets/Your Best Nightmare.mid" }),
+  "上海紅茶館": new MidiFileItem({ path: "assets/上海紅茶館.mid" }),
+  "亡き王女の為のセプテット": new MidiFileItem({ path: "assets/亡き王女の為のセプテット.mid" }),
+  "俄罗斯方块": new MidiFileItem({ path: "assets/俄罗斯方块.mid" }),
+  "嗵嗵": new MidiFileItem({ path: "assets/嗵嗵.mid" }),
+  "少女幻葬": new MidiFileItem({ path: "assets/少女幻葬.mid" }),
+  "思い出はおっくせんまん!": new MidiFileItem({ path: "assets/思い出はおっくせんまん!.mid" }),
+  "植物大战僵尸": new MidiFileItem({ path: "assets/植物大战僵尸.mid" }),
+  "残酷な天使のテーゼ": new MidiFileItem({ path: "assets/残酷な天使のテーゼ.mid" }),
+  "琪露诺的完美算数教室": new MidiFileItem({ path: "assets/琪露诺的完美算数教室.mid" }),
+  "甩葱歌": new MidiFileItem({ path: "assets/甩葱歌.mid" }),
+  "稲田姫様に叱られるから": new MidiFileItem({ path: "assets/稲田姫様に叱られるから.mid" }),
+  "野蜂飞舞": new MidiFileItem({ path: "assets/野蜂飞舞.mid" }),
+  "魔法少女まどか☆マギカ - Magia": new MidiFileItem({ path: "assets/魔法少女まどか☆マギカ - Magia.mid" }),
+  "鳥の詩": new MidiFileItem({ path: "assets/鳥の詩.mid" }),
 
-  "VAN": new ImageFileItem({ path: "VAN.png" }),
-  "刘醒": new ImageFileItem({ path: "刘醒.png" }),
-  "电棍": new ImageFileItem({ path: "电棍.png" }),
-  "魔理沙": new ImageFileItem({ path: "魔理沙.png" }),
-  
-  fa: new SoundFileItem({ path: 'fa.mp3', offset: 0.025, basePitch: 60, loopRange: [0.079, 0.096] }),
-  吔: new SoundFileItem({ path: '吔.mp3', offset: 0.061, basePitch: 50, loopRange: [0.187, 0.226] }),
-  电棍唢呐: new SoundFileItem({ path: '电棍唢呐.mp3', offset: 0.082, basePitch: 50, loopRange: [0.314, 0.327] }),
-  UDK姐贵: new SoundFileItem({ path: 'UDK姐贵.mp3', offset: 0.082, basePitch: 54, loopRange: [0.251, 0.262] }),
+  "VAN": new ImageFileItem({ path: "assets/VAN.png" }),
+  "刘醒": new ImageFileItem({ path: "assets/刘醒.png" }),
+  "电棍": new ImageFileItem({ path: "assets/电棍.png" }),
+  "魔理沙": new ImageFileItem({ path: "assets/魔理沙.png" }),
+
+  fa: new SoundFileItem({ path: 'assets/fa.mp3', offset: 0.025, basePitch: 60, loopRange: [0.079, 0.096] }),
+  吔: new SoundFileItem({ path: 'assets/吔.mp3', offset: 0.061, basePitch: 50, loopRange: [0.187, 0.226] }),
+  电棍唢呐: new SoundFileItem({ path: 'assets/电棍唢呐.mp3', offset: 0.082, basePitch: 50, loopRange: [0.314, 0.327] }),
+  UDK姐贵: new SoundFileItem({ path: 'assets/UDK姐贵.mp3', offset: 0.082, basePitch: 54, loopRange: [0.251, 0.262] }),
 }
 
 /** 文件库 */
