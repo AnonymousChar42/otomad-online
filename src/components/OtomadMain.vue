@@ -8,7 +8,7 @@
             <el-option v-for="item in otomad.configList" :key="item.id" :label="item.name" :value="item" />
           </el-select>
           <el-input v-model="otomad.curConfig.name" placeholder="配置名称" style="width: 150px;" class="mr-10" />
-          <el-button type="primary"  @click="addConfig()">新建配置</el-button>
+          <el-button type="primary" @click="addConfig()">新建配置</el-button>
           <el-button type="primary" @click="showFileLib()">素材库</el-button>
           <el-button type="primary" @click="save()">保存</el-button>
         </div>
@@ -43,7 +43,7 @@
     <SoundDialog ref="soundDialogRef" />
     <FileLibraryDialog ref="fileLibDialogRef" />
     <ImageDialog ref="imageDialogRef" />
-    <MyParticles style="z-index: -300;" />
+    <BackgroundParticle style="position: absolute; z-index: -300;opacity: 0.8;" />
   </div>
 </template>
 
@@ -55,7 +55,7 @@ import MidiTracksDialog from './MidiTracksDialog.vue'
 import SoundDialog from './SoundDialog.vue'
 import ImageDialog from './ImageDialog.vue'
 import FileLibraryDialog from './FileLibraryDialog.vue'
-import MyParticles from './MyParticles.vue'
+import BackgroundParticle from './BackgroundParticle.vue'
 import SiriWave from './SiriWave.vue'
 import type { Arrayable } from 'element-plus/es/utils/typescript.mjs'
 
@@ -139,6 +139,12 @@ body {
 }
 
 .otomad-main {
+
+  .el-input,
+  .el-select {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
   height: 100vh;
   width: 100vw;
 
@@ -192,7 +198,7 @@ body {
     .siri-wave {
       z-index: -300;
       top: 20vh;
-      filter: drop-shadow(16px 16px 10px black) blur(2px) opacity(50%) grayscale(20%);
+      filter: drop-shadow(16px 16px 10px black) blur(2px) opacity(80%);
     }
   }
 }
