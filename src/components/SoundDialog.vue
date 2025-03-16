@@ -1,5 +1,5 @@
 <template>
-  <el-dialog title="音频波形" v-model="visible" @close="close">
+  <el-dialog title="音频波形（可设置起点和循环段）" v-model="visible" @close="close">
     <div v-if="sound && visible" class="sound-wrapper">
       <div ref="waveformRef" />
       <div class="ver-line-wrapper">

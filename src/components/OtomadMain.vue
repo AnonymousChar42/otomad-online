@@ -4,7 +4,7 @@
       <div class="flex-row mb-10">
         <div class="flex-row items-center">
           <div class="mr-10">配置选择</div>
-          <el-select value-key="id" v-model="otomad.curConfig" @change="handleCfgChange" class="mr-10">
+          <el-select value-key="id" v-model="otomad.curConfig" @change="handleCfgChange" class="mr-10" filterable>
             <el-option v-for="item in otomad.configList" :key="item.id" :label="item.name" :value="item" />
           </el-select>
           <el-input v-model="otomad.curConfig.name" placeholder="配置名称" style="width: 150px;" class="mr-10" />
@@ -16,7 +16,7 @@
 
       <div class="flex-row justify-between mb-10">
         <div v-for="key in keyList" :key="key" class="flex-row">
-          <el-select value-key="id" v-model="otomad.curConfig[key]" @change="handleCfgChange" class="mr-10">
+          <el-select value-key="id" v-model="otomad.curConfig[key]" @change="handleCfgChange" class="mr-10" filterable>
             <el-option v-for="item in otomad.fileLibrary[key]" :key="item.id" :label="item.name" :value="item" />
           </el-select>
           <el-button type="primary" @click="showDetail(key)">查看 {{ key.toUpperCase() }}</el-button>
@@ -44,6 +44,7 @@
     <FileLibraryDialog ref="fileLibDialogRef" />
     <ImageDialog ref="imageDialogRef" />
     <BackgroundParticle style="position: absolute; z-index: -300;opacity: 0.8;" />
+    <div class="dark-overlay"></div>
   </div>
 </template>
 
@@ -80,13 +81,16 @@ otomad.init()
 // otomad.clearStore()
 
 const handleCfgChange = (config: OtomadConfig) => {
-  config.init()
+  config.init().then(() => {
+    if (audioCrx.playing) play()
+  })
 }
 
 
 const audioCrx = reactive(new MyAudioContext())
 const play = async () => {
   const { sound, midi } = otomad.curConfig
+  if (!sound || !midi) return ElMessage.warning('请选择midi和sound')
   audioCrx.playMidi(midi, sound, audioCrx.progress)
 }
 
@@ -139,14 +143,22 @@ body {
 }
 
 .otomad-main {
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
 
   .el-input,
   .el-select {
     background-color: rgba(0, 0, 0, 0.5);
-  }
 
-  height: 100vh;
-  width: 100vw;
+    .el-select__wrapper,
+    .el-input__wrapper {
+      border: solid 1px var(--el-color-primary);
+    }
+    .el-select__caret {
+      color: var(--el-color-primary);
+    }
+  }
 
   .wrapper {
     .el-select {
@@ -166,12 +178,12 @@ body {
   .img-row {
     z-index: -100;
     position: relative;
+    filter: drop-shadow(16px 16px 10px rgba(100, 100, 200, 0.2));
 
     .img-cell {
       position: absolute;
       max-height: 50vh;
       object-fit: contain;
-      filter: drop-shadow(16px 16px 10px rgba(128, 128, 128, 0.5));
     }
 
     .img-flip {
@@ -201,6 +213,16 @@ body {
       top: 20vh;
       filter: drop-shadow(16px 16px 10px rgba(128, 128, 128, 0.5)) blur(2px) opacity(80%);
     }
+  }
+
+  .dark-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: radial-gradient(circle at center, transparent 50%, rgba(0, 0, 10, 1) 100%);
+    z-index: -200;
   }
 }
 
