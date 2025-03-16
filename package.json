@@ -1,5 +1,6 @@
 {
-  "name": "vite-basic",
+  "name": "otomad-online",
+  "homepage": "https://anonymouschar42.github.io/otomad-online/",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -9,12 +10,15 @@
     "preview": "vite preview",
     "build-only": "vite build",
     "type-check": "vue-tsc --build --force",
-    "lint": "eslint . --fix"
+    "lint": "eslint . --fix",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.1",
     "axios": "^1.7.7",
     "element-plus": "^2.7.0",
+    "gh-pages": "^6.3.0",
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",
     "midi-parser-js": "^4.0.4",

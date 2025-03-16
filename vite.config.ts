@@ -5,6 +5,7 @@ import vue from '@vitejs/plugin-vue'
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/otomad-online',
   server: {
     host: '0.0.0.0',
     // port: 3000
