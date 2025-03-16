@@ -77,6 +77,7 @@ const showDetail = (key: keyof OtomadConfig) => {
 const showFileLib = () => fileLibDialogRef.value?.show(otomad.fileLibrary)
 const otomad = reactive(new OtomadMain())
 otomad.init()
+otomad.clearStore()
 
 const handleCfgChange = (config: OtomadConfig) => {
   config.init()

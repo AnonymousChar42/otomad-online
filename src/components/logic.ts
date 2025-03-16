@@ -5,6 +5,8 @@ import localForage from "localforage";
 import _ from 'lodash'
 import { reactive } from 'vue'
 
+const VERSION = '1.0'
+
 /** 轨道 */
 export class MidiTrack {
   name: string = ''
@@ -206,9 +208,13 @@ export class OtomadConfig {
   constructor(config?: Partial<OtomadConfig>) {
     this.id = _.uniqueId(Date.now() + '-')
     Object.assign(this, config || {})
-    if (this.sound && !(this.sound instanceof FileItem)) this.sound = new SoundFileItem(this.sound)
-    if (this.image && !(this.image instanceof FileItem)) this.image = new ImageFileItem(this.image)
-    if (this.midi && !(this.midi instanceof FileItem)) this.midi = new MidiFileItem(this.midi)
+  }
+  /** 指向素材库里的文件 */
+  match(fileLibrary: Record<'midi' | 'sound' | 'image', FileLibrary>) {
+    if (this.midi) this.midi = fileLibrary.midi.find(item => item.id === this.midi?.id) as MidiFileItem
+    if (this.sound) this.sound = fileLibrary.sound.find(item => item.id === this.sound?.id) as SoundFileItem
+    if (this.image) this.image = fileLibrary.image.find(item => item.id === this.image?.id) as ImageFileItem
+    return this
   }
   /** 更新轨道 */
   async init() {
@@ -248,10 +254,12 @@ const STATIC_FILES = {
   "VAN": new ImageFileItem({ path: "VAN.png" }),
   "电棍": new ImageFileItem({ path: "电棍.png" }),
   "刘醒": new ImageFileItem({ path: "刘醒.png" }),
+  "魔理沙": new ImageFileItem({ path: "魔理沙.png" }),
 
   fa: new SoundFileItem({ path: 'fa.mp3', offset: 0.025, basePitch: 60, loopRange: [0.079, 0.096] }),
   吔: new SoundFileItem({ path: '吔.mp3', offset: 0.061, basePitch: 50, loopRange: [0.187, 0.226] }),
   唢呐: new SoundFileItem({ path: '电棍唢呐.mp3', offset: 0.082, basePitch: 50, loopRange: [0.314, 0.327] }),
+  UDK姐贵: new SoundFileItem({ path: 'UDK姐贵.mp3', offset: 0.082, basePitch: 54, loopRange: [0.251, 0.262] }),
 }
 
 /** 文件库 */
@@ -281,8 +289,9 @@ export class OtomadMain {
   /** 配置列表 */
   configList = [
     { name: '野蜂飞舞', midi: STATIC_FILES.野蜂飞舞, sound: STATIC_FILES.吔, image: STATIC_FILES.刘醒 },
-    { name: '俄罗斯方块', midi: STATIC_FILES.俄罗斯方块, sound: STATIC_FILES.fa, image: STATIC_FILES.VAN },
-    { name: '甩葱歌', midi: STATIC_FILES.甩葱歌, sound: STATIC_FILES.唢呐, image: STATIC_FILES.电棍 },
+    { name: '俄罗斯方块', midi: STATIC_FILES.俄罗斯方块, sound: STATIC_FILES.唢呐, image: STATIC_FILES.电棍 },
+    { name: 'rolling_girl', midi: STATIC_FILES.rolling_girl, sound: STATIC_FILES.UDK姐贵, image: STATIC_FILES.魔理沙 },
+    { name: '甩葱歌', midi: STATIC_FILES.甩葱歌, sound: STATIC_FILES.fa, image: STATIC_FILES.VAN },
   ].map(config => new OtomadConfig(config))
 
   /** 所有文件 */
@@ -320,7 +329,7 @@ export class OtomadMain {
     }).then(async () => {
       return localForage.getItem<OtomadConfig[]>('configList').then(data => {
         if (!data) return
-        this.configList = data.map(item => new OtomadConfig(item))
+        this.configList = data.map(item => new OtomadConfig(item).match(this.fileLibrary))
       })
     })
     // 清除游离数据
