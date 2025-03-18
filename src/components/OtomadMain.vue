@@ -35,7 +35,7 @@
             :width="imageWidth + '%'" v-for="count, index in audioCrx.counter" :key="index" class="img-cell"
             :style="{ left: imageWidth * index + '%' }" />
           <img v-if="!audioCrx.counter.length" :src="otomad.curConfig.image?.src" class="img-center" />
-          <SiriWave :model-value="audioCrx.playing" class="siri-wave" />
+          <SiriWave :model-value="audioCrx.playing" class="siri-wave" v-if="!isMobile" />
         </div>
       </div>
     </div>
@@ -43,7 +43,7 @@
     <SoundDialog ref="soundDialogRef" />
     <FileLibraryDialog ref="fileLibDialogRef" />
     <ImageDialog ref="imageDialogRef" />
-    <BackgroundParticle style="position: absolute; z-index: -300;opacity: 0.8;" />
+    <BackgroundParticle style="position: absolute; z-index: -300;opacity: 0.8;" v-if="!isMobile" />
     <div class="dark-overlay"></div>
   </div>
 </template>
@@ -67,6 +67,7 @@ const midiTracksDialogRef = ref<InstanceType<typeof MidiTracksDialog>>()
 const soundDialogRef = ref<InstanceType<typeof SoundDialog>>()
 const imageDialogRef = ref<InstanceType<typeof ImageDialog>>()
 
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Mobile|Opera Mini/i.test(navigator.userAgent)
 const showDetail = (key: keyof OtomadConfig) => {
   switch (key) {
     case 'midi': return midiTracksDialogRef.value?.show(otomad.tracks)
@@ -155,6 +156,7 @@ body {
     .el-input__wrapper {
       border: solid 1px var(--el-color-primary);
     }
+
     .el-select__caret {
       color: var(--el-color-primary);
     }

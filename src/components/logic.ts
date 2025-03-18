@@ -469,7 +469,11 @@ export class MyAudioContext {
     const track = midi?.tracks[0]
     if (!track) return
     this.init(sound.buffer as AudioBuffer)
-    const notes = midi?.tracks.flatMap(track => track.selected ? track.notes : []) || []
+    const notes = _.chain(midi.tracks)
+      .filter(track => track.selected)
+      .flatMap(track => track.notes || [])
+      .orderBy(note => note.start)
+      .value()
     const deltaTime = track.tickDuration
     const { offset, loopRange: [loopStart, loopEnd] } = sound
     this.starProgressTime = startPerc * midi.totalTime
@@ -496,15 +500,22 @@ export class MyAudioContext {
         duration: (note.end - note.start) * deltaTime
       }
       return this.fixStartEnd(option)
-    }).filter(item => (item.when ?? 0) >= 0))
+    }).filter(item => (item.when ?? 0) >= 0), this.playId)
     this.startCount(midi, this.playId)
     this.startProgress(midi, this.playId)
   }
-  async playMulti(optList: MyCtxOption[]) {
+  async playMulti(optList: MyCtxOption[], playId: string) {
     this.playing = true
-    const sourceList: AudioBufferSourceNode[] = []
     let restCount = optList.length
-    optList.forEach(opt => {
+
+    const onended = () => {
+      restCount--
+      if (restCount > 0) return
+      this.playing = false
+      this.ctx?.close()
+    }
+
+    const playNode = (opt: MyCtxOption) => {
       if (!this.ctx || !this.buffer) return
       const { when = 0, offset = 0, loopStart = 0, loopEnd = 0, duration, playbackRate = 1, velocity = 127 } = opt
       const source = this.ctx.createBufferSource()
@@ -516,16 +527,25 @@ export class MyAudioContext {
       source.connect(gainNode)
       gainNode.connect(this.ctx.destination)
       source.start(when, offset, duration)
-      source.onended = () => {
-        restCount--
-        if (restCount === 0) {
-          this.playing = false
-          this.ctx?.close()
-        }
+      source.onended = onended
+    }
+
+    // 每一帧去查询下一个节点，若 when >= 播放时间，则播放，否则等待下一帧再查询
+    const startTime = new Date().getTime()
+    const rec = () => {
+      const time = new Date().getTime() - startTime
+      // 去掉超时的音符
+      while (optList.length && ((optList[0].when || 0) + (optList[0].duration || 0)) * 1000 <= time) {
+        optList.shift()
       }
-      sourceList.push(source)
-    })
-    this.sourceList = sourceList
+      // 播放当前时间的音符
+      while (optList.length && (optList[0].when || 0) * 1000 <= time) {
+        playNode(optList.shift()!)
+      }
+      if (!this.playing || playId !== this.playId) return
+      requestAnimationFrame(rec)
+    }
+    rec()
   }
   pause() {
     this.playing = false
