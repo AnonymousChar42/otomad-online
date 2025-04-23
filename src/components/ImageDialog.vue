@@ -1,7 +1,9 @@
 <template>
   <el-dialog title="图片预览" v-model="visible" @close="close">
     <div class="image-wrapper">
-      <el-image fit="contain" :src="image.src" v-if="image" />
+      <WittyDeer class="witty-deer">
+        <el-image fit="contain" :src="image.src" v-if="image" />
+      </WittyDeer>
     </div>
   </el-dialog>
 </template>
@@ -12,6 +14,7 @@
 import { ref } from 'vue'
 import { ElDialog, ElImage } from 'element-plus'
 import { ImageFileItem } from './logic'
+import WittyDeer from '@/components/uiverse/WittyDeer.vue'
 
 const visible = ref(false)
 
@@ -38,10 +41,17 @@ defineExpose({ show })
 
 .image-wrapper {
   text-align: center;
+  height: 50vh;
 }
 
-.el-image {
+:deep(.el-image) {
   margin: 20px auto;
   height: 50vh;
+}
+
+.witty-deer {
+  margin: 0 auto;
+  --h: 50vh;
+  --w: 50vw;
 }
 </style>
