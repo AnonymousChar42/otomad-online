@@ -55,18 +55,23 @@ const time2px = (t: number) => t / 20
 .track {
   cursor: pointer;
   position: relative;
-  border: 1px solid rgb(197.7, 225.9, 255);
   height: 80px;
-  background-color: rgb(243.9, 244.2, 244.8);
+  background-size: 1000px 100%;
+  animation: none
 }
 
 .track.selected {
-  background-color: rgb(235.9, 245.3, 255);
+  background: none;
+  animation: hue-rotate 1s linear infinite;
+}
+
+.track.selected .note {
+  background-color: rgb(51.2, 126.4, 204);
 }
 
 .note {
   position: absolute;
   height: 1px;
-  background-color: rgb(51.2, 126.4, 204);
+  background-color: rgb(255, 255, 255, 70%);
 }
 </style>

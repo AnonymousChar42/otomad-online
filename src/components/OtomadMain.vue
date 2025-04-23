@@ -1,5 +1,5 @@
 <template>
-  <div class="otomad-main flex-col">
+  <div class="otomad-main flex-col" :class="{ 'is-mobile': isMobile }">
     <div class="wrapper p-20 flex-col flex-1">
       <div class="flex-row mb-10">
         <div class="flex-row items-center">
@@ -8,8 +8,8 @@
             <el-option v-for="item in otomad.configList" :key="item.id" :label="item.name" :value="item" />
           </el-select>
           <el-input v-model="otomad.curConfig.name" placeholder="配置名称" style="width: 150px;" class="mr-10" />
-          <el-button type="primary" @click="addConfig()">新建配置</el-button>
-          <el-button type="primary" @click="showFileLib()">素材库</el-button>
+          <el-button type="primary" @click="addConfig()" class="mr-10">新建配置</el-button>
+          <CurvyRat @click="showFileLib()" class="mr-10">素材库</CurvyRat>
           <el-button type="primary" @click="save()">保存</el-button>
         </div>
       </div>
@@ -24,10 +24,9 @@
       </div>
 
       <div class="flex-1">
-        <div class="flex-row">
-          <el-button type="primary" @click="pause" v-if="audioCrx.playing">stop</el-button>
-          <el-button type="primary" @click="play" v-else>play</el-button>
-          <ElSlider v-model="audioCrx.progress" :step="1e-5" :max="1" class="flex-1 ml-50" :show-tooltip="false"
+        <div class="flex-row items-center">
+          <TameSnake @click="audioCrx.playing ? pause() : play()" :checked="audioCrx.playing" />
+          <ElSlider v-model="audioCrx.progress" :step="1e-5" :max="1" class="flex-1 ml-20" :show-tooltip="false"
             @input="handleProgressChange" />
         </div>
         <div class="img-row unselectable m-100">
@@ -49,6 +48,8 @@
 </template>
 
 <script setup lang="ts">
+import CurvyRat from './uiverse/CurvyRat.vue'
+import TameSnake from './uiverse/TameSnake.vue'
 import { reactive, ref, computed, onMounted, onUnmounted } from 'vue'
 import { ElButton, ElInput, ElSelect, ElOption, ElSlider, ElMessage } from 'element-plus'
 import { OtomadMain, OtomadConfig, MyAudioContext } from './logic'
@@ -148,9 +149,16 @@ body {
   width: 100vw;
   overflow: hidden;
 
+  &.is-mobile {
+    transform: scale(0.5);
+    transform-origin: 0 0;
+    width: 200vw;
+    height: 200vh;
+  }
+
   .el-input,
   .el-select {
-    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
 
     .el-select__wrapper,
     .el-input__wrapper {
@@ -159,6 +167,32 @@ body {
 
     .el-select__caret {
       color: var(--el-color-primary);
+    }
+  }
+
+  .el-slider {
+    .el-slider__runway {
+      background-color: #41424366;
+    }
+
+    .el-slider__bar {
+      background: linear-gradient(115deg, #4fcf70, #fad648);
+      filter: hue-rotate(0deg);
+      animation: hue-rotate 1s linear infinite;
+      position: relative;
+
+      &::after {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: 0;
+        right: 0;
+        bottom: -2px;
+        background: inherit;
+        filter: blur(5px);
+        opacity: 0.7;
+        z-index: -1;
+      }
     }
   }
 
@@ -175,6 +209,10 @@ body {
   .unselectable {
     user-select: none;
     pointer-events: none;
+  }
+
+  .el-button {
+    background: none;
   }
 
   .img-row {
@@ -226,6 +264,61 @@ body {
     background: radial-gradient(circle at center, transparent 50%, rgba(0, 0, 10, 1) 100%);
     z-index: -200;
   }
+
+  .el-dialog {
+    --el-dialog-bg-color: #14141488;
+
+  }
+
+  .el-overlay .el-dialog {
+    backdrop-filter: blur(10px);
+  }
+
+  .el-button {
+    cursor: pointer;
+    padding: 8px 25px;
+    border: solid 2px var(--el-color-primary);
+    position: relative;
+    overflow: hidden;
+    transition: 0.1s linear 0.1s;
+  }
+
+  .el-button span {
+    color: rgba(255, 255, 255, 0.767);
+    font-weight: 500;
+    position: relative;
+    z-index: 2;
+    transition: 0.1s linear 0.1s;
+  }
+
+  .el-button::after {
+    display: block;
+    content: "";
+    background-color: var(--el-color-primary);
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    position: absolute;
+    top: 100%;
+    transform: translateX(-50%);
+    left: 50%;
+    transition: 0.1s ease-in-out;
+    z-index: 1;
+  }
+
+  .el-button:hover {
+    box-shadow: 0px 0px 20px var(--el-color-primary);
+  }
+
+  .el-button:hover::after {
+    top: -100%;
+  }
+
+  .el-button:hover span {
+    color: white;
+    transform: scale(1.1);
+  }
+
 }
 
 @keyframes flip-scale {
@@ -245,6 +338,12 @@ body {
 
   100% {
     transform: scaleX(1) scaleY(1);
+  }
+}
+
+@keyframes hue-rotate {
+  to {
+    filter: hue-rotate(360deg);
   }
 }
 </style>
